@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mock Bank - Payment</title>
+</head>
+<body>
+    <h1>Mock Bank</h1>
+
+    <h2>Make a Payment</h2>
+
+    <form id="paymentForm">
+        <label for="fromAccount">From Account:</label>
+        <input id="fromAccount" name="fromAccount" type="text" autocomplete="off" required>
+        <br><br>
+
+        <label for="toAccount">To Account:</label>
+        <input id="toAccount" name="toAccount" type="text" autocomplete="off" required>
+        <br><br>
+
+        <label for="amount">Amount:</label>
+        <input id="amount" name="amount" type="number" min="1" step="0.01" required>
+        <br><br>
+
+        <button type="submit">Submit Payment</button>
+    </form>
+
+    <div id="result" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
