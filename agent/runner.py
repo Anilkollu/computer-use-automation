@@ -9,7 +9,23 @@ BASE_URL = "http://127.0.0.1:3000"
 
 
 def get_page_state(page):
-    return page.locator("body").inner_text()
+    state = page.locator("body").inner_text()
+
+    inputs = page.locator("input")
+
+    for i in range(inputs.count()):
+        field = inputs.nth(i)
+
+        try:
+            label = field.get_attribute("id") or field.get_attribute("name")
+            value = field.input_value()
+
+            if label:
+                state += f"\nFIELD {label}: {value}"
+        except Exception:
+            pass
+
+    return state
 
 
 def execute_action(page, action):

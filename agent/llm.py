@@ -2,6 +2,7 @@ import json
 import os
 
 from google import genai
+from google.genai import types
 
 
 client = genai.Client(
@@ -12,9 +13,9 @@ client = genai.Client(
 SYSTEM_PROMPT = """
 You are a computer-use agent operating a small mock banking web application.
 
-Your job is to accomplish the user's goal by choosing one browser action at a time.
+Your job is to accomplish the user's goal by choosing exactly ONE browser action at a time.
 
-You may ONLY choose these actions:
+Allowed actions:
 
 1. click
 2. fill
@@ -31,7 +32,7 @@ For click:
 For fill:
 {
   "action": "fill",
-  "target": "exact field label",
+  "target": "exact visible field label",
   "value": "value"
 }
 
@@ -40,19 +41,32 @@ For finish:
   "action": "finish"
 }
 
-Rules:
-- Use the current page information to decide the next action.
-- Do not invent controls that are not visible.
-- Complete the user's requested payment.
-- Use the values provided in the user's goal.
-- Never expose or save passwords in logs or artifacts.
-- Finish only after the payment success message is visible.
-- Choose exactly one action at a time.
+MOCK BANK LOGIN:
+Username = demo
+Password = demo
+
+IMPORTANT RULES:
+
+- Look carefully at CURRENT PAGE and FIELD values.
+- Do not repeat an action that has already been completed.
+- If Username already contains "demo", do NOT fill Username again.
+- If Username is empty, fill Username with "demo".
+- If Password is empty, fill Password with "demo".
+- After both login fields are filled, click Login.
+- After login, click Payments.
+- Then fill the payment fields using the user's goal.
+- Do not use payment account numbers as login credentials.
+- Do not invent controls.
+- Choose exactly ONE action.
+- Do not finish until PAYMENT SUCCESSFUL is visible.
+- Never expose or save passwords in artifacts or logs.
 """
 
 
-def get_next_action(goal: str, page_text: str) -> dict:
 
+
+
+def get_next_action(goal: str, page_text: str) -> dict:
     user_prompt = f"""
 USER GOAL:
 {goal}
@@ -60,34 +74,60 @@ USER GOAL:
 CURRENT PAGE:
 {page_text}
 
-Choose exactly ONE next browser action.
+Choose the next action based ONLY on the CURRENT PAGE.
 
-Return JSON only.
+If the login page is visible:
+- Fill Username with "demo"
+- Fill Password with "demo"
+- Click Login
+
+After login:
+- Click Payments
+- Fill From Account with the from-account from the goal
+- Fill To Account with the to-account from the goal
+- Fill Amount with the amount from the goal
+- Click Submit Payment
+
+If PAYMENT SUCCESSFUL is visible:
+return:
+{{"action": "finish"}}
+
+Return exactly ONE JSON action.
 """
 
     response = client.models.generate_content(
-        model="gemini-3.6-flash",
+        model="gemini-3.5-flash-lite",
         contents=[
             SYSTEM_PROMPT,
             user_prompt
         ],
-        config={
-            "temperature": 0
-        }
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json"
+        )
     )
 
     text = response.text.strip()
 
-    # Handle accidental markdown code fences.
     if text.startswith("```"):
         text = text.replace("```json", "")
         text = text.replace("```", "")
         text = text.strip()
 
     try:
-        return json.loads(text)
-
+        action = json.loads(text)
     except json.JSONDecodeError:
         raise RuntimeError(
             f"Gemini returned invalid JSON: {text}"
         )
+
+    if not isinstance(action, dict):
+        raise RuntimeError(
+            f"Gemini response was not a JSON object: {action}"
+        )
+
+    if action.get("action") not in {"click", "fill", "finish"}:
+        raise RuntimeError(
+            f"Unsupported LLM action: {action}"
+        )
+
+    return action

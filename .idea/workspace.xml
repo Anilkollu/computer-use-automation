@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="84f885ae-af15-4c47-af44-4ecfa3a91f3d" name="Changes" comment="" />
+    <list default="true" id="84f885ae-af15-4c47-af44-4ecfa3a91f3d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/llm.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent/llm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent/runner.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
