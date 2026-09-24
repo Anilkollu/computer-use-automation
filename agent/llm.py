@@ -13,30 +13,29 @@ client = genai.Client(
 SYSTEM_PROMPT = """
 You are a computer-use agent operating a small mock banking web application.
 
-Your job is to accomplish the user's goal by choosing exactly ONE browser action at a time.
+Choose exactly ONE browser action at a time.
 
 Allowed actions:
-
-1. click
-2. fill
-3. finish
+- click
+- fill
+- finish
 
 Return ONLY valid JSON.
 
-For click:
+CLICK:
 {
   "action": "click",
   "target": "exact visible button or link name"
 }
 
-For fill:
+FILL:
 {
   "action": "fill",
   "target": "exact visible field label",
   "value": "value"
 }
 
-For finish:
+FINISH:
 {
   "action": "finish"
 }
@@ -45,54 +44,84 @@ MOCK BANK LOGIN:
 Username = demo
 Password = demo
 
-IMPORTANT RULES:
+LOGIN RULES:
+- If username is empty, fill Username with demo.
+- If password is empty, fill Password with demo.
+- If both username and password are already filled, NEVER fill either one again.
+- When both login fields contain values, the next action MUST be clicking Login.
 
-- Look carefully at CURRENT PAGE and FIELD values.
-- Do not repeat an action that has already been completed.
-- If Username already contains "demo", do NOT fill Username again.
-- If Username is empty, fill Username with "demo".
-- If Password is empty, fill Password with "demo".
-- After both login fields are filled, click Login.
+PAYMENT RULES:
 - After login, click Payments.
-- Then fill the payment fields using the user's goal.
+- Fill From Account from the user's goal.
+- Fill To Account from the user's goal.
+- Fill Amount from the user's goal.
 - Do not use payment account numbers as login credentials.
-- Do not invent controls.
-- Choose exactly ONE action.
-- Do not finish until PAYMENT SUCCESSFUL is visible.
-- Never expose or save passwords in artifacts or logs.
+- Do not repeat a field that already contains the requested value.
+- Click Submit Payment after all payment fields are filled.
+- When PAYMENT SUCCESSFUL is visible, finish.
+
+Choose exactly ONE action.
+Do not repeat completed actions.
 """
 
 
-
-
-
 def get_next_action(goal: str, page_text: str) -> dict:
+
     user_prompt = f"""
 USER GOAL:
 {goal}
 
-CURRENT PAGE:
+CURRENT PAGE STATE:
 {page_text}
 
-Choose the next action based ONLY on the CURRENT PAGE.
+You must choose the NEXT incomplete action.
 
-If the login page is visible:
-- Fill Username with "demo"
-- Fill Password with "demo"
-- Click Login
+IMPORTANT:
+Look carefully at the FIELD lines.
 
-After login:
-- Click Payments
-- Fill From Account with the from-account from the goal
-- Fill To Account with the to-account from the goal
-- Fill Amount with the amount from the goal
-- Click Submit Payment
+Payment fields are:
+- FIELD fromAccount
+- FIELD toAccount
+- FIELD amount
+
+The payment values from the user's goal are:
+- From Account = 12345
+- To Account = 67890
+- Amount = 500
+
+Follow this exact progression on the payment page:
+
+1. If FIELD fromAccount is empty:
+   fill From Account with 12345
+
+2. ELSE IF FIELD toAccount is empty:
+   fill To Account with 67890
+
+3. ELSE IF FIELD amount is empty:
+   fill Amount with 500
+
+4. ELSE:
+   click Submit Payment
+
+Never fill a field that already contains a value.
+
+LOGIN:
+- Username = demo
+- Password = demo
+
+If login page:
+- empty username -> fill Username with demo
+- otherwise if empty password -> fill Password with demo
+- otherwise -> click Login
+
+If dashboard:
+- click Payments
 
 If PAYMENT SUCCESSFUL is visible:
-return:
-{{"action": "finish"}}
+- finish
 
 Return exactly ONE JSON action.
+Return JSON only.
 """
 
     response = client.models.generate_content(
@@ -102,7 +131,10 @@ Return exactly ONE JSON action.
             user_prompt
         ],
         config=types.GenerateContentConfig(
-            response_mime_type="application/json"
+            response_mime_type="application/json",
+            thinking_config=types.ThinkingConfig(
+                thinking_level="low"
+            )
         )
     )
 
