@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "capability_id": "submit-payment",
+  "capability_version": 1,
+  "inputs": {
+    "fromAccount": {
+      "type": "string",
+      "description": "Source account number"
+    },
+    "toAccount": {
+      "type": "string",
+      "description": "Destination account number"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "username": {
+      "type": "string",
+      "secret": "true",
+      "description": "Application username"
+    },
+    "password": {
+      "type": "string",
+      "secret": "true",
+      "description": "Application password"
+    }
+  },
+  "steps": [
+    {
+      "action": "fill",
+      "target": {
+        "label": "Username"
+      },
+      "value": "{{username}}"
+    },
+    {
+      "action": "fill",
+      "target": {
+        "label": "Password"
+      },
+      "value": "{{password}}"
+    },
+    {
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Login"
+      }
+    },
+    {
+      "action": "click",
+      "target": {
+        "role": "link",
+        "name": "Payments"
+      }
+    },
+    {
+      "action": "fill",
+      "target": {
+        "label": "From Account"
+      },
+      "value": "{{fromAccount}}"
+    },
+    {
+      "action": "fill",
+      "target": {
+        "label": "To Account"
+      },
+      "value": "{{toAccount}}"
+    },
+    {
+      "action": "fill",
+      "target": {
+        "label": "Amount"
+      },
+      "value": "{{amount}}"
+    },
+    {
+      "action": "click",
+      "target": {
+        "role": "button",
+        "name": "Submit Payment"
+      }
+    }
+  ],
+  "outputs": {
+    "transactionId": {
+      "type": "string",
+      "description": "Generated payment transaction ID"
+    },
+    "status": {
+      "type": "string",
+      "description": "Payment completion status"
+    }
+  },
+  "checkpoint": {
+    "type": "text",
+    "contains": "PAYMENT SUCCESSFUL"
+  }
+}

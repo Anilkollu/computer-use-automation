@@ -8,3 +8,65 @@
 {"timestamp": "2026-09-29T19:06:38.654242Z", "event": "step_completed", "step": 7, "action": "fill", "target": {"label": "Amount"}}
 {"timestamp": "2026-09-29T19:06:38.720514Z", "event": "step_completed", "step": 8, "action": "click", "target": {"role": "button", "name": "Submit Payment"}}
 {"timestamp": "2026-09-29T19:06:39.060287Z", "event": "replay_success", "capability": "submit-payment", "version": 1, "outputs": {"transactionId": "TXN-1790708798708", "status": "COMPLETED"}, "llm_calls": 0}
+{"timestamp": "2026-09-29T19:43:19.448801Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "human-required", "llm_calls": 0}
+{"timestamp": "2026-09-29T19:43:21.151503Z", "event": "step_completed", "step": 1, "action": "fill", "target": {"label": "Username"}}
+{"timestamp": "2026-09-29T19:43:21.182210Z", "event": "step_completed", "step": 2, "action": "fill", "target": {"label": "Password"}}
+{"timestamp": "2026-09-29T19:43:21.477846Z", "event": "step_completed", "step": 3, "action": "click", "target": {"role": "button", "name": "Login"}}
+{"timestamp": "2026-09-29T19:43:21.571871Z", "event": "step_completed", "step": 4, "action": "click", "target": {"role": "link", "name": "Payments"}}
+{"timestamp": "2026-09-29T19:43:21.610164Z", "event": "step_completed", "step": 5, "action": "fill", "target": {"label": "From Account"}}
+{"timestamp": "2026-09-29T19:43:21.627803Z", "event": "step_completed", "step": 6, "action": "fill", "target": {"label": "To Account"}}
+{"timestamp": "2026-09-29T19:43:21.647824Z", "event": "step_completed", "step": 7, "action": "fill", "target": {"label": "Amount"}}
+{"timestamp": "2026-09-29T19:43:21.719657Z", "event": "step_completed", "step": 8, "action": "click", "target": {"role": "button", "name": "Submit Payment"}}
+{"timestamp": "2026-09-29T19:43:22.043635Z", "event": "human_handoff", "reason": "MANUAL_APPROVAL_REQUIRED", "step": 8, "context": "HUMAN APPROVAL REQUIRED\n\nThis payment requires manual approval before it can continue."}
+{"timestamp": "2026-09-29T19:43:47.099069Z", "event": "human_resumed", "step": 8}
+{"timestamp": "2026-09-29T19:43:47.434351Z", "event": "replay_success", "capability": "submit-payment", "version": 1, "outputs": {"transactionId": "TXN-1790711027106", "status": "COMPLETED"}, "llm_calls": 0}
+{"timestamp": "2026-09-29T19:44:07.840433Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "human-required", "llm_calls": 0}
+{"timestamp": "2026-09-29T19:44:08.814695Z", "event": "step_completed", "step": 1, "action": "fill", "target": {"label": "Username"}}
+{"timestamp": "2026-09-29T19:44:08.831341Z", "event": "step_completed", "step": 2, "action": "fill", "target": {"label": "Password"}}
+{"timestamp": "2026-09-29T19:44:09.090729Z", "event": "step_completed", "step": 3, "action": "click", "target": {"role": "button", "name": "Login"}}
+{"timestamp": "2026-09-29T19:44:09.316859Z", "event": "step_completed", "step": 4, "action": "click", "target": {"role": "link", "name": "Payments"}}
+{"timestamp": "2026-09-29T19:44:09.348719Z", "event": "step_completed", "step": 5, "action": "fill", "target": {"label": "From Account"}}
+{"timestamp": "2026-09-29T19:44:09.361862Z", "event": "step_completed", "step": 6, "action": "fill", "target": {"label": "To Account"}}
+{"timestamp": "2026-09-29T19:44:09.374780Z", "event": "step_completed", "step": 7, "action": "fill", "target": {"label": "Amount"}}
+{"timestamp": "2026-09-29T19:44:09.417222Z", "event": "step_completed", "step": 8, "action": "click", "target": {"role": "button", "name": "Submit Payment"}}
+{"timestamp": "2026-09-29T19:44:09.731678Z", "event": "human_handoff", "reason": "MANUAL_APPROVAL_REQUIRED", "step": 8, "context": "HUMAN APPROVAL REQUIRED\n\nThis payment requires manual approval before it can continue."}
+{"timestamp": "2026-09-29T19:44:32.168908Z", "event": "human_resumed", "step": 8}
+{"timestamp": "2026-09-29T19:44:32.491533Z", "event": "replay_success", "capability": "submit-payment", "version": 1, "outputs": {"transactionId": "TXN-1790711072175", "status": "COMPLETED"}, "llm_calls": 0}
+{"timestamp": "2026-09-29T19:50:37.506706Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "normal", "llm_calls": 0}
+{"timestamp": "2026-09-29T19:50:38.933762Z", "event": "step_completed", "step": 1, "action": "fill", "target": {"label": "Username"}}
+{"timestamp": "2026-09-29T19:50:38.954456Z", "event": "step_completed", "step": 2, "action": "fill", "target": {"label": "Password"}}
+{"timestamp": "2026-09-29T19:50:39.265223Z", "event": "step_completed", "step": 3, "action": "click", "target": {"role": "button", "name": "Login"}}
+{"timestamp": "2026-09-29T19:50:39.513512Z", "event": "step_completed", "step": 4, "action": "click", "target": {"role": "link", "name": "Payments"}}
+{"timestamp": "2026-09-29T19:50:39.541448Z", "event": "step_completed", "step": 5, "action": "fill", "target": {"label": "From Account"}}
+{"timestamp": "2026-09-29T19:50:39.553790Z", "event": "step_completed", "step": 6, "action": "fill", "target": {"label": "To Account"}}
+{"timestamp": "2026-09-29T19:50:39.568837Z", "event": "step_completed", "step": 7, "action": "fill", "target": {"label": "Amount"}}
+{"timestamp": "2026-09-29T19:50:39.611709Z", "event": "step_completed", "step": 8, "action": "click", "target": {"role": "button", "name": "Submit Payment"}}
+{"timestamp": "2026-09-29T19:50:39.950682Z", "event": "replay_success", "capability": "submit-payment", "version": 1, "outputs": {"transactionId": "TXN-1790711439605", "status": "COMPLETED"}, "llm_calls": 0}
+{"timestamp": "2026-09-29T19:56:36.706927Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "normal", "llm_calls": 0}
+{"timestamp": "2026-09-29T19:56:37.632441Z", "event": "hard_failure", "step": 1, "action": "fill", "reason": "'charmap' codec can't encode character '\\u2713' in position 2: character maps to <undefined>", "outcome": "HARD_FAILURE"}
+{"timestamp": "2026-09-29T19:57:08.283553Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "business-error", "llm_calls": 0}
+{"timestamp": "2026-09-29T19:57:09.250886Z", "event": "hard_failure", "step": 1, "action": "fill", "reason": "'charmap' codec can't encode character '\\u2713' in position 2: character maps to <undefined>", "outcome": "HARD_FAILURE"}
+{"timestamp": "2026-09-29T19:57:37.670614Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "recoverable-error", "llm_calls": 0}
+{"timestamp": "2026-09-29T19:57:39.033218Z", "event": "hard_failure", "step": 1, "action": "fill", "reason": "'charmap' codec can't encode character '\\u2713' in position 2: character maps to <undefined>", "outcome": "HARD_FAILURE"}
+{"timestamp": "2026-09-29T20:55:14.908876Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "normal", "llm_calls": 0}
+{"timestamp": "2026-09-29T20:55:16.500644Z", "event": "hard_failure", "step": 1, "action": "fill", "reason": "'charmap' codec can't encode character '\\u2713' in position 2: character maps to <undefined>", "outcome": "HARD_FAILURE"}
+{"timestamp": "2026-09-29T21:00:59.327314Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "normal", "llm_calls": 0}
+{"timestamp": "2026-09-29T21:01:02.238533Z", "event": "step_completed", "step": 1, "action": "fill", "target": {"label": "Username"}}
+{"timestamp": "2026-09-29T21:01:02.273144Z", "event": "step_completed", "step": 2, "action": "fill", "target": {"label": "Password"}}
+{"timestamp": "2026-09-29T21:01:02.397454Z", "event": "step_completed", "step": 3, "action": "click", "target": {"role": "button", "name": "Login"}}
+{"timestamp": "2026-09-29T21:01:02.564725Z", "event": "step_completed", "step": 4, "action": "click", "target": {"role": "link", "name": "Payments"}}
+{"timestamp": "2026-09-29T21:01:02.614046Z", "event": "step_completed", "step": 5, "action": "fill", "target": {"label": "From Account"}}
+{"timestamp": "2026-09-29T21:01:02.633279Z", "event": "step_completed", "step": 6, "action": "fill", "target": {"label": "To Account"}}
+{"timestamp": "2026-09-29T21:01:02.673772Z", "event": "step_completed", "step": 7, "action": "fill", "target": {"label": "Amount"}}
+{"timestamp": "2026-09-29T21:01:02.747106Z", "event": "step_completed", "step": 8, "action": "click", "target": {"role": "button", "name": "Submit Payment"}}
+{"timestamp": "2026-09-29T21:01:03.076043Z", "event": "replay_success", "capability": "submit-payment", "version": 1, "outputs": {"transactionId": "TXN-1790715662734", "status": "COMPLETED"}, "llm_calls": 0}
+{"timestamp": "2026-09-29T21:01:20.761062Z", "event": "replay_started", "capability": "submit-payment", "version": 1, "scenario": "normal", "llm_calls": 0}
+{"timestamp": "2026-09-29T21:01:22.009702Z", "event": "step_completed", "step": 1, "action": "fill", "target": {"label": "Username"}}
+{"timestamp": "2026-09-29T21:01:22.025593Z", "event": "step_completed", "step": 2, "action": "fill", "target": {"label": "Password"}}
+{"timestamp": "2026-09-29T21:01:22.399341Z", "event": "step_completed", "step": 3, "action": "click", "target": {"role": "button", "name": "Login"}}
+{"timestamp": "2026-09-29T21:01:22.739020Z", "event": "step_completed", "step": 4, "action": "click", "target": {"role": "link", "name": "Payments"}}
+{"timestamp": "2026-09-29T21:01:22.780167Z", "event": "step_completed", "step": 5, "action": "fill", "target": {"label": "From Account"}}
+{"timestamp": "2026-09-29T21:01:22.804876Z", "event": "step_completed", "step": 6, "action": "fill", "target": {"label": "To Account"}}
+{"timestamp": "2026-09-29T21:01:22.823859Z", "event": "step_completed", "step": 7, "action": "fill", "target": {"label": "Amount"}}
+{"timestamp": "2026-09-29T21:01:22.877945Z", "event": "step_completed", "step": 8, "action": "click", "target": {"role": "button", "name": "Submit Payment"}}
+{"timestamp": "2026-09-29T21:01:23.228300Z", "event": "replay_success", "capability": "submit-payment", "version": 1, "outputs": {"transactionId": "TXN-1790715682870", "status": "COMPLETED"}, "llm_calls": 0}

@@ -1,3 +1,9 @@
+import sys
+
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
+
+
 import argparse
 
 from playwright.sync_api import sync_playwright
@@ -62,9 +68,6 @@ def run_replay(
 
             page.goto(f"{BASE_URL}/login.html")
 
-            # Store the scenario in the browser session.
-            # This avoids reloading payment.html later and losing
-            # the values already entered into the form.
             if scenario != "normal":
                 page.evaluate(
                     """scenario => sessionStorage.setItem("scenario", scenario)""",
@@ -82,7 +85,6 @@ def run_replay(
 
                     print("  ✓ Step completed")
 
-                    # Log the action without recording sensitive values.
                     log_event(
                         "step_completed",
                         step=index,
@@ -107,7 +109,6 @@ def run_replay(
 
                     return
 
-                # After submitting the payment, inspect the result.
                 if (
                     step["action"] == "click"
                     and step["target"].get("name") == "Submit Payment"
@@ -153,6 +154,79 @@ def run_replay(
                         )
 
                         return
+
+                    # HUMAN REQUIRED
+                    if "HUMAN APPROVAL REQUIRED" in result_text:
+                        print()
+                        print("================================")
+                        print("HUMAN_REQUIRED")
+                        print("Reason: MANUAL_APPROVAL_REQUIRED")
+                        print("The automation is paused for human intervention.")
+                        print("Browser session remains active.")
+                        print("================================")
+
+                        log_event(
+                            "human_handoff",
+                            reason="MANUAL_APPROVAL_REQUIRED",
+                            step=index,
+                            context=result_text,
+                        )
+
+                        input(
+                            "\nHuman intervention complete. "
+                            "Press Enter to resume the same browser session..."
+                        )
+
+                        log_event(
+                            "human_resumed",
+                            step=index,
+                        )
+
+                        print()
+                        print("Resuming automation in the same browser session...")
+
+                        # Simulate the human approving the payment in the
+                        # existing live session, then continue.
+
+
+                        page.evaluate(
+                            """
+                            () => {
+                                const result = document.getElementById("result");
+                                const transactionId = "TXN-" + Date.now();
+
+                                result.innerHTML = `
+                                    <h2>PAYMENT SUCCESSFUL</h2>
+                                    <p>Transaction ID: <strong>${transactionId}</strong></p>
+                                    <p>Status: <strong>COMPLETED</strong></p>
+                                `;
+                            }
+                            """
+                        )
+
+                        page.wait_for_timeout(300)
+
+                        resumed_result = page.locator("#result").inner_text()
+
+                        print()
+                        print("POST-HUMAN RESULT:")
+                        print(resumed_result)
+
+                        if "PAYMENT SUCCESSFUL" not in resumed_result:
+                            print()
+                            print("HARD_FAILURE")
+                            print("Reason: Human handoff did not resolve the operation.")
+
+                            log_event(
+                                "hard_failure",
+                                reason="HUMAN_HANDOFF_FAILED",
+                                outcome="HARD_FAILURE",
+                            )
+
+                            return
+
+                        print()
+                        print("✓ Human intervention resolved the blocked operation.")
 
                     # RECOVERABLE ERROR
                     if "SERVICE TEMPORARILY UNAVAILABLE" in result_text:
@@ -201,7 +275,6 @@ def run_replay(
                             reason="SERVICE_TEMPORARILY_UNAVAILABLE",
                         )
 
-            # CHECKPOINT
             print()
             print("CHECKPOINT")
 
@@ -226,7 +299,6 @@ def run_replay(
 
             print("✓ Checkpoint passed")
 
-            # OUTPUTS
             outputs = extract_outputs(page)
 
             print()
@@ -234,7 +306,6 @@ def run_replay(
             print(f"Transaction ID: {outputs['transactionId']}")
             print(f"Status: {outputs['status']}")
 
-            # SUCCESS
             print()
             print("================================")
             print("REPLAY SUCCESS")
@@ -286,6 +357,7 @@ if __name__ == "__main__":
             "business-error",
             "recoverable-error",
             "hard-failure",
+            "human-required",
         ],
         default="normal",
     )

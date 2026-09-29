@@ -60,6 +60,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 `;
                 return;
             }
+            if (scenario === "human-required") {
+                result.innerHTML = `
+                    <h2>HUMAN APPROVAL REQUIRED</h2>
+                    <p>This payment requires manual approval before it can continue.</p>
+                `;
+                return;
+            }
 
             if (scenario === "recoverable-error") {
                 const alreadyFailed = sessionStorage.getItem(
