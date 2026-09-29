@@ -3,6 +3,10 @@ import argparse
 from playwright.sync_api import sync_playwright
 
 from agent.llm import get_next_action
+from artifact.builder import (
+    build_submit_payment_artifact,
+    save_artifact,
+)
 
 
 BASE_URL = "http://127.0.0.1:3000"
@@ -70,13 +74,28 @@ def execute_action(page, action):
                 "button",
                 name=target
             ).click(timeout=5000)
+
+            return {
+                "action": "click",
+                "target": {
+                    "role": "button",
+                    "name": target
+                }
+            }
+
         except Exception:
             page.get_by_role(
                 "link",
                 name=target
             ).click(timeout=5000)
 
-        return
+            return {
+                "action": "click",
+                "target": {
+                    "role": "link",
+                    "name": target
+                }
+            }
 
     if action_type == "fill":
         target = action["target"]
@@ -86,11 +105,21 @@ def execute_action(page, action):
 
         page.get_by_label(target).fill(value)
 
-        return
+        return {
+            "action": "fill",
+            "target": {
+                "label": target
+            },
+            "value": value
+        }
 
     if action_type == "finish":
         print("  ACTION: finish")
-        return
+
+        return {
+            "action": "finish",
+            "target": {}
+        }
 
     raise RuntimeError(
         f"Unsupported action: {action_type}"
@@ -108,6 +137,8 @@ def run_agent(goal):
 
         max_steps = 15
 
+        recorded_actions = []
+
         for step in range(1, max_steps + 1):
             print()
             print(f"========== STEP {step} ==========")
@@ -123,6 +154,15 @@ def run_agent(goal):
             if "PAYMENT SUCCESSFUL" in page_text:
                 print()
                 print("SUCCESS: Goal completed.")
+
+                artifact = build_submit_payment_artifact(
+                  recorded_actions
+                )
+
+                artifact_path = save_artifact(artifact)
+
+                print()
+                print(f"ARTIFACT SAVED: {artifact_path}")
                 break
 
             # -----------------------------------------
@@ -178,7 +218,13 @@ def run_agent(goal):
             print("DECISION:")
             print(action)
 
-            execute_action(page, action)
+            recorded_action = execute_action(
+                page,
+                action
+            )
+
+            if action.get("action") != "finish":
+                recorded_actions.append(recorded_action)
 
             if action.get("action") == "finish":
                 print()
