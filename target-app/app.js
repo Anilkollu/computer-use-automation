@@ -39,6 +39,48 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
+            const scenario =
+                new URLSearchParams(window.location.search).get("scenario") ||
+                sessionStorage.getItem("scenario");
+
+
+            if (scenario === "business-error") {
+                result.innerHTML = `
+                    <h2>INSUFFICIENT FUNDS</h2>
+                    <p>Available balance: <strong>$100</strong></p>
+                    <p>Requested: <strong>$${amount}</strong></p>
+                `;
+                return;
+            }
+
+            if (scenario === "hard-failure") {
+                result.innerHTML = `
+                    <h2>PERMISSION DENIED</h2>
+                    <p>You are not authorized to submit this payment.</p>
+                `;
+                return;
+            }
+
+            if (scenario === "recoverable-error") {
+                const alreadyFailed = sessionStorage.getItem(
+                    "recoverable-error-shown"
+                );
+
+                if (!alreadyFailed) {
+                    sessionStorage.setItem(
+                        "recoverable-error-shown",
+                        "true"
+                    );
+
+                    result.innerHTML = `
+                        <h2>SERVICE TEMPORARILY UNAVAILABLE</h2>
+                        <p>Please try again.</p>
+                    `;
+
+                    return;
+                }
+            }
+
             const transactionId = "TXN-" + Date.now();
 
             result.innerHTML = `
@@ -46,6 +88,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p>Transaction ID: <strong>${transactionId}</strong></p>
                 <p>Status: <strong>COMPLETED</strong></p>
             `;
+
+
+
         });
     }
 });
