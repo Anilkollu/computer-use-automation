@@ -6,11 +6,19 @@ from google import genai
 from google.genai import types
 
 
-
 load_dotenv()
-client = genai.Client(
-    api_key=os.environ["GEMINI_API_KEY"]
-)
+
+api_key = os.environ.get("GEMINI_API_KEY")
+
+if not api_key:
+    raise SystemExit(
+        "GEMINI_API_KEY is not set. "
+        "Set it before running discovery, e.g. "
+        '$env:GEMINI_API_KEY="YOUR_KEY" (PowerShell) or '
+        'export GEMINI_API_KEY="YOUR_KEY" (bash).'
+    )
+
+client = genai.Client(api_key=api_key)
 
 
 SYSTEM_PROMPT = """
@@ -68,7 +76,10 @@ Do not repeat completed actions.
 """
 
 
-def get_next_action(goal: str, page_text: str) -> dict:
+def get_next_action(goal: str, page_text: str, values: dict) -> dict:
+    from_account = values["from_account"]
+    to_account = values["to_account"]
+    amount = values["amount"]
 
     user_prompt = f"""
 USER GOAL:
@@ -88,20 +99,20 @@ Payment fields are:
 - FIELD amount
 
 The payment values from the user's goal are:
-- From Account = 12345
-- To Account = 67890
-- Amount = 500
+- From Account = {from_account}
+- To Account = {to_account}
+- Amount = {amount}
 
 Follow this exact progression on the payment page:
 
 1. If FIELD fromAccount is empty:
-   fill From Account with 12345
+   fill From Account with {from_account}
 
 2. ELSE IF FIELD toAccount is empty:
-   fill To Account with 67890
+   fill To Account with {to_account}
 
 3. ELSE IF FIELD amount is empty:
-   fill Amount with 500
+   fill Amount with {amount}
 
 4. ELSE:
    click Submit Payment

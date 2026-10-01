@@ -18,6 +18,11 @@ from replay.engine import (
 
 from observability.logger import log_event
 
+from safety.policy import (
+    SafetyError,
+    validate_action,
+    validate_url,
+)
 
 BASE_URL = "http://127.0.0.1:3000"
 
@@ -68,6 +73,12 @@ def run_replay(
 
             page.goto(f"{BASE_URL}/login.html")
 
+            try:
+                validate_url(page.url)
+            except SafetyError as exc:
+                print(f"SAFETY BLOCKED: {exc}")
+                return
+
             if scenario != "normal":
                 page.evaluate(
                     """scenario => sessionStorage.setItem("scenario", scenario)""",
@@ -81,6 +92,21 @@ def run_replay(
                 print(f"STEP {index}/{len(steps)}")
 
                 try:
+                    try:
+                        validate_action(step)
+                    except SafetyError as exc:
+                        print()
+                        print(f"SAFETY BLOCKED at step {index}: {exc}")
+
+                        log_event(
+                            "safety_blocked",
+                            step=index,
+                            reason=str(exc),
+                            outcome="SAFETY_BLOCKED",
+                        )
+
+                        return
+
                     execute_step(page, step, inputs)
 
                     print("  ✓ Step completed")
@@ -173,8 +199,9 @@ def run_replay(
                         )
 
                         input(
-                            "\nHuman intervention complete. "
-                            "Press Enter to resume the same browser session..."
+                            "\nThe browser session is live and paused. "
+                            "In the browser window, click the Approve Payment "
+                            "button to approve, then press Enter here to resume..."
                         )
 
                         log_event(
@@ -185,24 +212,11 @@ def run_replay(
                         print()
                         print("Resuming automation in the same browser session...")
 
-                        # Simulate the human approving the payment in the
-                        # existing live session, then continue.
+                        # The human acted in the live session. Verify what the
+                        # page actually shows now instead of assuming success.
+                        page.wait_for_timeout(300)
 
-
-                        page.evaluate(
-                            """
-                            () => {
-                                const result = document.getElementById("result");
-                                const transactionId = "TXN-" + Date.now();
-
-                                result.innerHTML = `
-                                    <h2>PAYMENT SUCCESSFUL</h2>
-                                    <p>Transaction ID: <strong>${transactionId}</strong></p>
-                                    <p>Status: <strong>COMPLETED</strong></p>
-                                `;
-                            }
-                            """
-                        )
+                        resumed_result = page.locator("#result").inner_text()
 
                         page.wait_for_timeout(300)
 

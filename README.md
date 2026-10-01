@@ -48,9 +48,6 @@ agent/
     runner.py
     llm.py
 
-browser/
-    playwright_client.py
-
 artifact/
     schema.py
     builder.py
@@ -101,10 +98,18 @@ Install the Playwright browser:
 python -m playwright install chromium
 ```
 
-Set the Gemini API key in the current PowerShell session:
+Set the Gemini API key (PowerShell):
 
 ```powershell
 $env:GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
+```
+
+Or on macOS / Linux (bash):
+
+```bash
+pip install -r requirements.txt
+python -m playwright install chromium
+export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
 ```
 
 The API key is read from the environment and is not stored in the capability artifact.

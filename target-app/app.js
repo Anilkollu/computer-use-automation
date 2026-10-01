@@ -64,7 +64,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 result.innerHTML = `
                     <h2>HUMAN APPROVAL REQUIRED</h2>
                     <p>This payment requires manual approval before it can continue.</p>
+                    <button id="approvePayment" type="button">Approve Payment</button>
                 `;
+                // The human operator approves in this same live session.
+                // The automation resumes only after a real human click.
+                document.getElementById("approvePayment").addEventListener("click", function () {
+                    const transactionId = "TXN-" + Date.now();
+                    result.innerHTML = `
+                        <h2>PAYMENT SUCCESSFUL</h2>
+                        <p>Transaction ID: <strong>${transactionId}</strong></p>
+                        <p>Status: <strong>COMPLETED</strong></p>
+                    `;
+                });
                 return;
             }
 

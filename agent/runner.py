@@ -1,4 +1,5 @@
 import argparse
+import re
 
 from playwright.sync_api import sync_playwright
 
@@ -7,9 +8,52 @@ from artifact.builder import (
     build_submit_payment_artifact,
     save_artifact,
 )
+from safety.policy import (
+    SafetyError,
+    validate_action,
+    validate_page,
+)
 
 
 BASE_URL = "http://127.0.0.1:3000"
+
+
+def parse_goal(goal: str) -> dict:
+    """Extract payment values from a natural-language goal.
+
+    Understands goals like:
+        "Submit a $500 payment from account 12345 to account 67890"
+    Falls back to the demo defaults when the goal does not name values.
+    """
+    values = {
+        "from_account": "12345",
+        "to_account": "67890",
+        "amount": "500",
+    }
+
+    from_match = re.search(r"from account (\w+)", goal, re.IGNORECASE)
+    to_match = re.search(r"to account (\w+)", goal, re.IGNORECASE)
+
+    # An explicit dollar amount ("$500"), or a number followed by a
+    # money word ("500 dollars"). Never treat an account number as
+    # the amount.
+    dollar_match = re.search(r"\$(\d+(?:\.\d{1,2})?)", goal)
+    word_match = re.search(
+        r"(\d+(?:\.\d{1,2})?)\s*(?:dollar|payment|amount)",
+        goal,
+        re.IGNORECASE,
+    )
+
+    if from_match:
+        values["from_account"] = from_match.group(1)
+    if to_match:
+        values["to_account"] = to_match.group(1)
+    if dollar_match:
+        values["amount"] = dollar_match.group(1)
+    elif word_match:
+        values["amount"] = word_match.group(1)
+
+    return values
 
 
 def get_page_state(page):
@@ -127,6 +171,11 @@ def execute_action(page, action):
 
 
 def run_agent(goal):
+    values = parse_goal(goal)
+
+    print(f"Goal: {goal}")
+    print(f"Parsed values: {values}")
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
 
@@ -134,6 +183,13 @@ def run_agent(goal):
 
         print("Opening Mock Bank...")
         page.goto(f"{BASE_URL}/login.html")
+
+        try:
+            validate_page(page)
+        except SafetyError as exc:
+            print(f"SAFETY BLOCKED: {exc}")
+            browser.close()
+            return
 
         max_steps = 15
 
@@ -156,7 +212,7 @@ def run_agent(goal):
                 print("SUCCESS: Goal completed.")
 
                 artifact = build_submit_payment_artifact(
-                  recorded_actions
+                    recorded_actions
                 )
 
                 artifact_path = save_artifact(artifact)
@@ -166,53 +222,22 @@ def run_agent(goal):
                 break
 
             # -----------------------------------------
-            # PAYMENT PAGE
+            # LLM DECIDES THE NEXT ACTION
             # -----------------------------------------
-            if page.get_by_label("From Account").count() > 0:
+            try:
+                validate_page(page)
 
-                from_account = page.get_by_label("From Account")
-                to_account = page.get_by_label("To Account")
-                amount = page.get_by_label("Amount")
-
-                # Fill From Account only if empty
-                if from_account.input_value() == "":
-                    action = {
-                        "action": "fill",
-                        "target": "From Account",
-                        "value": "12345"
-                    }
-
-                # Fill To Account only if empty
-                elif to_account.input_value() == "":
-                    action = {
-                        "action": "fill",
-                        "target": "To Account",
-                        "value": "67890"
-                    }
-
-                # Fill Amount only if empty
-                elif amount.input_value() == "":
-                    action = {
-                        "action": "fill",
-                        "target": "Amount",
-                        "value": "500"
-                    }
-
-                # All fields filled → submit
-                else:
-                    action = {
-                        "action": "click",
-                        "target": "Submit Payment"
-                    }
-
-            # -----------------------------------------
-            # OTHER PAGES → USE LLM
-            # -----------------------------------------
-            else:
                 action = get_next_action(
                     goal,
-                    page_text
+                    page_text,
+                    values,
                 )
+
+                validate_action(action)
+            except SafetyError as exc:
+                print()
+                print(f"SAFETY BLOCKED: {exc}")
+                break
 
             print()
             print("DECISION:")

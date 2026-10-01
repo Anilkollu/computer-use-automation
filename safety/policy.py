@@ -14,6 +14,7 @@ ALLOWED_ROUTES = {
 ALLOWED_ACTIONS = {
     "click",
     "fill",
+    "finish",
 }
 
 

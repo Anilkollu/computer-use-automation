@@ -219,9 +219,15 @@ It emits a structured human handoff event containing:
 
 The automation pauses and the browser remains active.
 
-The human can intervene in that existing session.
+The human intervenes in that existing session: the mock banking surface
+presents an "Approve Payment" button, and the human operator clicks it in
+the same live browser window the automation was using. The operator then
+presses Enter in the terminal to hand control back.
 
-After intervention, the automation resumes using the same browser session rather than starting a new session. The post-human result is then checked using the normal checkpoint mechanism.
+After intervention, the automation resumes using the same browser session
+rather than starting a new session. Crucially, it verifies what the page
+actually shows after the human acted, using the normal checkpoint
+mechanism — the outcome is observed, not assumed.
 
 The evidence records:
 
@@ -261,16 +267,13 @@ The implementation deliberately focuses on the required vertical slice.
 
 The following were intentionally not built:
 
-* Spring Boot backend
-* Kafka
-* production database
-* distributed queues
-* Kubernetes or cloud infrastructure
-* real banking integrations
-* full multi-tenant infrastructure
-* native desktop automation
-* production operator console
-* large-scale capability catalog
+* production service infrastructure (queues, databases, orchestration)
+* real banking integrations (the local mock app stands in for the target)
+* full multi-tenant infrastructure (design seam documented in section 4)
+* native desktop automation (design seam documented in section 4)
+* production operator console (a minimal but real handoff is implemented)
+* large-scale capability catalog / approval workflow
+* screenshot capture on failure (structured logs and replay events are captured)
 
 These were not necessary to demonstrate the core requirement.
 
