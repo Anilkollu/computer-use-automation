@@ -1,10 +1,9 @@
 import json
 import os
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-
 
 load_dotenv()
 
@@ -13,9 +12,7 @@ api_key = os.environ.get("GEMINI_API_KEY")
 if not api_key:
     raise SystemExit(
         "GEMINI_API_KEY is not set. "
-        "Set it before running discovery, e.g. "
-        '$env:GEMINI_API_KEY="YOUR_KEY" (PowerShell) or '
-        'export GEMINI_API_KEY="YOUR_KEY" (bash).'
+        "Create a .env file with GEMINI_API_KEY=YOUR_KEY."
     )
 
 client = genai.Client(api_key=api_key)
@@ -58,28 +55,27 @@ Password = demo
 LOGIN RULES:
 - If username is empty, fill Username with demo.
 - If password is empty, fill Password with demo.
-- If both username and password are already filled, NEVER fill either one again.
-- When both login fields contain values, the next action MUST be clicking Login.
+- If both login fields already contain values, click Login.
+- Never fill a login field that already contains its required value.
 
 PAYMENT RULES:
 - After login, click Payments.
-- Fill From Account from the user's goal.
-- Fill To Account from the user's goal.
-- Fill Amount from the user's goal.
-- Do not use payment account numbers as login credentials.
-- Do not repeat a field that already contains the requested value.
-- Click Submit Payment after all payment fields are filled.
+- Fill From Account with the source account from the goal.
+- Fill To Account with the destination account from the goal.
+- Fill Amount with the amount from the goal.
+- Never fill a payment field that already contains the requested value.
+- Once all three payment fields contain their requested values, click Submit Payment.
 - When PAYMENT SUCCESSFUL is visible, finish.
 
 Choose exactly ONE action.
-Do not repeat completed actions.
+Never repeat a completed action.
 """
 
 
 def get_next_action(goal: str, page_text: str, values: dict) -> dict:
-    from_account = values["from_account"]
-    to_account = values["to_account"]
-    amount = values["amount"]
+    from_account = str(values["from_account"])
+    to_account = str(values["to_account"])
+    amount = str(values["amount"])
 
     user_prompt = f"""
 USER GOAL:
@@ -88,53 +84,67 @@ USER GOAL:
 CURRENT PAGE STATE:
 {page_text}
 
-You must choose the NEXT incomplete action.
-
 IMPORTANT:
-Look carefully at the FIELD lines.
+The CURRENT PAGE STATE is authoritative.
 
-Payment fields are:
-- FIELD fromAccount
-- FIELD toAccount
-- FIELD amount
-
-The payment values from the user's goal are:
+Payment values from the goal:
 - From Account = {from_account}
 - To Account = {to_account}
 - Amount = {amount}
 
-Follow this exact progression on the payment page:
+The page uses these field names:
+- FIELD fromAccount
+- FIELD toAccount
+- FIELD amount
+
+PAYMENT DECISION ORDER:
 
 1. If FIELD fromAccount is empty:
-   fill From Account with {from_account}
+   return:
+   {{"action":"fill","target":"From Account","value":"{from_account}"}}
 
-2. ELSE IF FIELD toAccount is empty:
-   fill To Account with {to_account}
+2. Otherwise, if FIELD toAccount is empty:
+   return:
+   {{"action":"fill","target":"To Account","value":"{to_account}"}}
 
-3. ELSE IF FIELD amount is empty:
-   fill Amount with {amount}
+3. Otherwise, if FIELD amount is empty:
+   return:
+   {{"action":"fill","target":"Amount","value":"{amount}"}}
 
-4. ELSE:
-   click Submit Payment
+4. Otherwise, all payment fields are already filled.
+   Return:
+   {{"action":"click","target":"Submit Payment"}}
 
-Never fill a field that already contains a value.
+CRITICAL:
+If the page says:
 
-LOGIN:
-- Username = demo
-- Password = demo
+FIELD amount: {amount}
 
-If login page:
-- empty username -> fill Username with demo
-- otherwise if empty password -> fill Password with demo
-- otherwise -> click Login
+then DO NOT fill Amount again.
+Click Submit Payment instead.
 
-If dashboard:
-- click Payments
+LOGIN DECISION ORDER:
 
+If the page is the login page:
+
+1. If username is empty:
+   fill Username with demo.
+
+2. Otherwise, if password is empty:
+   fill Password with demo.
+
+3. Otherwise:
+   click Login.
+
+DASHBOARD:
+If the page is the dashboard and Payments is visible:
+click Payments.
+
+SUCCESS:
 If PAYMENT SUCCESSFUL is visible:
-- finish
+finish.
 
-Return exactly ONE JSON action.
+Return exactly ONE JSON object.
 Return JSON only.
 """
 
